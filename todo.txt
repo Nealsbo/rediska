@@ -1,0 +1,48 @@
+## To-do list
+
+# Basic code structure
+
+[x] ServerApp
+[x] TcpServer
+[x] Storage
+[x] ThreadSafeMap
+[ ] External dependecies
+
+# Initial/Basic implementation
+
+[x] String based ThreadSafeMap(multiple read, single write)
+[x] TcpServer
+    [x] Single client connection
+    [x] Echo
+    [X] Command parser
+    [x] Response
+[x] Storage interface(put, get, delete)
+
+# To do (MVP version)
+
+[ ] PUT, GET, DEL commands
+[ ] Commands handler
+[ ] Handling errors in message
+[ ] Handling non-perfect commands
+[ ] Handling long messages
+[ ] Multiple clients
+[ ] Storage sync for clients
+[ ] Message metadata
+[ ] Metrics/profiling
+[ ] Leveled logging
+[ ] Storage saving and loading
+[ ] Documentation
+[ ] Build process
+[ ] Configurable loading
+[ ] Optimization
+    [ ] Allocations
+    [ ] Multithreading
+    [ ] Readability
+    [ ] 
+[ ] Tests
+    [ ] ThreadSafeMap
+    [ ] Storage
+    [ ] TcpServer
+    [ ] Command parser
+    [ ] Load test
+    [ ] ...

@@ -1,17 +1,64 @@
 #include "tcpserver.h"
 
 #include <iostream>
+#include <queue>
+#include <condition_variable>
 
 #include <strings.h>
+
+bool stop_workers = false;
+
+void ConnectionHandler(int cl_fd) {
+    std::cout << "INFO: Start thread for client, fd: " << cl_fd << "\n";
+    std::vector<char> buffer(1024);
+    MsgHandler handler;
+    int bytes_read;
+    std::string responce;
+
+    while(true) {
+        bzero(buffer.data(), 1024);
+
+        bytes_read = recv(cl_fd, buffer.data(), 1024, 0);
+        if(bytes_read > 0) {
+            std::string msg = std::string(buffer.data(), bytes_read);
+            std::cout << "Recv: " << msg << "\n";
+            handler.ParseMessage(msg);
+            responce = msg;
+        } else if(bytes_read < 0) {
+            std::cout << "ERROR: Read from socket failed\n";
+            break;
+        } else {
+            std::cout << "Recv: Client closed\n";
+            close(cl_fd);
+            break;
+        }
+
+        send(cl_fd, responce.c_str(), responce.size(), 0);
+    }
+
+    std::cout << "INFO: Stop thread for client, fd: " << cl_fd << "\n";
+    close(cl_fd);
+}
+
+/*
+void fd_set_nb(int sock) {
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+}
+*/
 
 TcpServer::TcpServer(const std::string& addr, int _port) {
     address = addr;
     port = _port;
     buffer.reserve(1024);
+    workers_count = 4;
 }
 
 TcpServer::TcpServer() {
-
+    address = "0.0.0.0";
+    port = 7780;
+    buffer.reserve(1024);
+    workers_count = 4;
 }
 
 void TcpServer::InitServer() {
@@ -25,7 +72,8 @@ void TcpServer::InitServer() {
 }
 
 void TcpServer::Shutdown() {
-
+    std::cout << "INFO: TcpServer Shutdown ...\n";
+    StopThreads();
 }
 
 int TcpServer::InitSocket() {
@@ -64,6 +112,20 @@ int TcpServer::InitSocket() {
     return 0;
 }
 
+int TcpServer::SpawnThreads(int num_threads) {
+    std::cout << "INFO: Spawning threads: n = " << num_threads << "\n";
+    thread_pool.SpawnThreads(num_threads);
+
+    return 0;
+}
+
+int TcpServer::StopThreads() {
+    std::cout << "INFO: Stop thread pool process\n";
+    thread_pool.StopThreads();
+
+    return 0;
+}
+
 int TcpServer::StartAccept() {
     int res;
     sockaddr_in cl_addr;
@@ -75,16 +137,24 @@ int TcpServer::StartAccept() {
             std::cout << "ERROR: Failed to accept client\n";
             return -1;
         }
-        
+
+        std::thread t(&ConnectionHandler, cl_fd);
+        t.detach();
+
+        /*
         res = ClientProc(cl_fd);
         if(res == -1) {
             std::cout << "ERROR: Client proc returned error\n";
             return -1;
         }
+        */
     }
 }
 
 int TcpServer::ClientProc(int cl_fd) {
+    ClientData cdata;
+    cdata.cl_fd = cl_fd;
+
     int bytes_read;
     std::string responce;
     while(1) {

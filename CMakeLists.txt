@@ -9,6 +9,7 @@ set(SOURCES
     src/storage.cpp
     src/tcpserver.cpp
     src/server.cpp
+    src/threadPool.cpp
     src/msgHandler.cpp
     src/commands.cpp
 )

@@ -96,5 +96,6 @@ public:
     void Shutdown();
 
 private:
+    bool shouldSaveData = false;
     std::unique_ptr<ThreadSafeMap<std::string, std::string>> storage_imp;
 };

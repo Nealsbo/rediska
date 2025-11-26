@@ -8,6 +8,8 @@ MsgHandler::~MsgHandler() {
 
 }
 
+// Parsing only exact cases for now
+// TODO: fix parsing
 int MsgHandler::ParseMessage(const std::string& msg) {
     hasResponse = false;
     std::cout << "INFO: Message handler called\n";
@@ -17,9 +19,15 @@ int MsgHandler::ParseMessage(const std::string& msg) {
     std::cout << "INFO: ---------------\n";
 
     int first_divider  = msg.find_first_of(' ');
+    std::string cmd   = msg.substr(0, first_divider);
+    if(cmd.size() < 3 || first_divider == msg.npos) {
+        hasResponse = true;
+        response = "ERR: UNKNOWN COMMAND";
+        return 1;
+    };
+    
     int second_divider = msg.find_first_of(' ', first_divider+1);
 
-    std::string cmd   = msg.substr(0, first_divider);
     std::string key   = msg.substr(first_divider + 1, second_divider - first_divider - 1);
     std::string value = msg.substr(second_divider + 1);
 

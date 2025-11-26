@@ -17,6 +17,8 @@
     [X] Command parser
     [x] Response
 [x] Storage interface(put, get, delete)
+[x] Multiple clients
+[x] Basic ThreadPool
 
 # To do (MVP version)
 
@@ -25,9 +27,10 @@
 [ ] Handling errors in message
 [ ] Handling non-perfect commands
 [ ] Handling long messages
-[ ] Multiple clients
 [ ] Storage sync for clients
 [ ] Message metadata
+[ ] Client metadata
+[ ] TTL
 [ ] Metrics/profiling
 [ ] Leveled logging
 [ ] Storage saving and loading
